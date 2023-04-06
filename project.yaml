@@ -5,8 +5,21 @@ expectations:
 
 actions:
 
-  generate_study_population:
-    run: cohortextractor:latest generate_cohort --output-format csv.gz --study-definition study_definition
+  create_matched_cases:
+    run: >
+      python:latest
+        analysis/create_matched_cases.py
     outputs:
       highly_sensitive:
-        cohort: output/input.csv.gz
+        cases: output/matched_cases_stp.csv
+
+  generate_dataset:
+    run: >
+      databuilder:v0
+        generate-dataset analysis/dataset_definition.py
+        --output output/dataset.arrow
+    needs:
+      [create_matched_cases]
+    outputs:
+      highly_sensitive:
+        cohort: output/dataset.arrow
